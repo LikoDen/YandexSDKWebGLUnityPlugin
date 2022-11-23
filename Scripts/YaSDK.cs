@@ -20,12 +20,12 @@ namespace YandexSDK
         public Queue<int> rewardedAdPlacementsAsInt = new Queue<int>();
         public Queue<string> rewardedAdsPlacements = new Queue<string>();
 
-       
+
 
         [SerializeField] private int secondTillNextInterstitial = 180;
-        [SerializeField] private AudioSource[] sourcesToMute;
 
         [DllImport("__Internal")] private static extern void ShowFullscreenAd();
+        [DllImport("__Internal")] private static extern void OpenRateUs();
         [DllImport("__Internal")] private static extern int ShowRewardedAd(string placement);
 
         private int currentSecondsTillNextInterstitial;
@@ -34,14 +34,22 @@ namespace YandexSDK
 
         public void Awake()
         {
-            instance = this;
+            if (instance != null)
+            {
+                Destroy(gameObject);
+            }
+            else
+            {
+                instance = this;
+                DontDestroyOnLoad(this);
+            }
             currentSecondsTillNextInterstitial = secondTillNextInterstitial;
             StartCoroutine(CountTillNextInterstitial());
         }
 
         private void Start()
         {
-           
+
         }
         public void ShowInterstitial()
         {
@@ -49,11 +57,7 @@ namespace YandexSDK
             {
                 return;
             }
-
-            foreach(AudioSource source in sourcesToMute)
-            {
-                source.Pause();
-            }
+            AudioListener.pause =true;
 
             Time.timeScale = 0;
             ShowFullscreenAd();
@@ -65,10 +69,7 @@ namespace YandexSDK
         {
             rewardedAdPlacementsAsInt.Enqueue(ShowRewardedAd(placement));
             rewardedAdsPlacements.Enqueue(placement);
-            foreach (AudioSource source in sourcesToMute)
-            {
-                source.Pause();
-            }
+            AudioListener.pause = true;
         }
 
         public void OnInterstitialShown()
@@ -77,10 +78,7 @@ namespace YandexSDK
             {
                 onInterstitialShown();
             }
-            foreach (AudioSource source in sourcesToMute)
-            {
-                source.UnPause();
-            }
+            AudioListener.pause = false;
             Time.timeScale = 1;
             StartCoroutine(CountTillNextInterstitial());
         }
@@ -88,10 +86,7 @@ namespace YandexSDK
         public void OnInterstitialError(string error)
         {
             Time.timeScale = 1;
-            foreach (AudioSource source in sourcesToMute)
-            {
-                source.UnPause();
-            }
+            AudioListener.pause = false;
             StartCoroutine(CountTillNextInterstitial());
             if (onInterstitialFailed != null)
             {
@@ -122,10 +117,7 @@ namespace YandexSDK
         public void OnRewardedClose(int placement)
         {
             Time.timeScale = 1;
-            foreach (AudioSource source in sourcesToMute)
-            {
-                source.UnPause();
-            }
+            AudioListener.pause = false;
             if (onRewardedAdClosed != null)
             {
                 onRewardedAdClosed(placement);
@@ -134,12 +126,9 @@ namespace YandexSDK
 
         public void OnRewardedError(int placement)
         {
-            
+
             Time.timeScale = 1;
-            foreach (AudioSource source in sourcesToMute)
-            {
-                source.UnPause();
-            }
+            AudioListener.pause = false;
             if (onRewardedAdError != null)
             {
                 onRewardedAdError(placement);
@@ -147,7 +136,10 @@ namespace YandexSDK
             rewardedAdsPlacements.Clear();
             rewardedAdPlacementsAsInt.Clear();
         }
-
+        public void OpenRateUsWindow()
+        {
+            OpenRateUs();
+        }
         private IEnumerator<WaitForSeconds> CountTillNextInterstitial()
         {
 
