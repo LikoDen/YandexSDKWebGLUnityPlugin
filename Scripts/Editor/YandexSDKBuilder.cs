@@ -12,9 +12,8 @@ namespace YandexSDK
     {
 
         [MenuItem("Yandex SDK/Initialize SDK")]
-        public static void InitializeYandexSDKGameobject()
+        public static void InitializeYandexSDK()
         {
-
             GameObject go = ObjectFactory.CreateGameObject("YandexSDK", typeof(YaSDK));
 
             EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo();
@@ -65,6 +64,11 @@ namespace YandexSDK
 
             if (GUILayout.Button("Build", GUILayout.Width(100)))
             {
+            string destinationFolder = Path.GetFullPath("Assets/WebGLTemplates/");
+            string sourceFolder = Path.GetFullPath("Packages/com.mrpart.yandexsdkplugin/WebGLTemplates/");
+            FileUtil.ReplaceDirectory(sourceFolder,destinationFolder);
+            AssetDatabase.Refresh();
+            PlayerSettings.WebGL.template = "PROJECT:Yandex";
                 if (path == null || gameTitle == null)
                 {
                     Debug.LogError("Path or Title is null");
