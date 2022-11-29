@@ -11,8 +11,16 @@ return placement;
 OpenRateUs: function(placement){
     openRateUs();
 },
-Debug: function()
+Authenticate: function()
 {
-console.log("I work");
+	auth();
+},
+SetPlayerData: function(dataStr)
+{
+	setPlayerData(UTF8ToString(dataStr));
+},
+GetPlayerData: function()
+{
+	getPlayerData();
 }
 });

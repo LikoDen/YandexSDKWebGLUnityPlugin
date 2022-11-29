@@ -72,8 +72,8 @@
         streamingAssetsUrl: "StreamingAssets",
       companyName: {{{ JSON.stringify(COMPANY_NAME) }}},
     productName: "Eta shtuka poka ne rabotaet, nu i ladno",
-    productVersion: "etat tozhe",
-    showBanner: unityShowBanner,
+      productVersion: "etat tozhe",
+        showBanner: unityShowBanner,
       };
 
     // By default Unity keeps WebGL canvas render target size matched with
@@ -108,6 +108,12 @@
       }).then((unityInstance) => {
         window.unityInstance = unityInstance;
         showFullScreenAdv();
+        if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+          window.unityInstance.SendMessage('YandexSDK', 'OnGetPlayerPlatform', 'phone');
+        }
+        else {
+          window.unityInstance.SendMessage('YandexSDK', 'OnGetPlayerPlatform', 'desktop');
+        }
         loadingBar.style.display = "none";
       }).catch((message) => {
         alert(message);
@@ -115,18 +121,63 @@
     };
     document.body.appendChild(script);
   </script>
-   <script>
+  <script>
+    function auth() {
+      initPlayer();
+    }
+    function initPlayer() {
+      return sdk.getPlayer().then(_player => {
+        player = _player;
+        if (_player.getMode() === 'lite') {
+          // sdk.auth.openAuthDialog().then(() => {
+
+          // });
+        }
+        console.log("Initialized");
+        window.unityInstance.SendMessage('YandexSDK', 'OnPlayerAuthenticated');
+      }).catch(err => {
+        console.log("cant init");
+      });
+    }
+    function setPlayerData(dataStr) {
+      player.setData({
+        "data": dataStr
+      }).then(() => {
+        console.log("saved");
+      }).catch(() => {
+        console.log("not saved");
+      });
+    }
+    function getPlayerData() {
+      player.getData(["data"]).then(data => {
+        if (data.data.length != 0) {
+          var dataStr = data.data;
+          console.log("ok");
+          console.log(dataStr);
+          window.unityInstance.SendMessage('YandexSDK', 'OnGetPlayerData', dataStr);
+        }
+        else {
+          console.log("chota est");
+          var dataStr = 'none';
+          window.unityInstance.SendMessage('YandexSDK', 'OnGetPlayerData', dataStr);
+        }
+      }).catch((err) => {
+        console.log("ne ok");
+        var dataStr = 'none';
+        window.unityInstance.SendMessage('YandexSDK', 'OnGetPlayerData', dataStr);
+      });
+    }
     function openRateUs() {
       sdk.feedback.canReview()
         .then(({ value, reason }) => {
-            if (value) {
-                sdk.feedback.requestReview()
-                    .then(({ feedbackSent }) => {
-                        console.log(feedbackSent);
-                    })
-            } else {
-                console.log(reason)
-            }
+          if (value) {
+            sdk.feedback.requestReview()
+              .then(({ feedbackSent }) => {
+                console.log(feedbackSent);
+              })
+          } else {
+            console.log(reason)
+          }
         })
     }
   </script>

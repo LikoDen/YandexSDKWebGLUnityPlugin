@@ -4,35 +4,38 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.IO;
 using UnityEditor;
-using System.IO;
 namespace YandexSDK
 {
+    public enum Platform
+    {
+        phone,
+        desktop
+    }
     public class YaSDK : MonoBehaviour
     {
-
         public static YaSDK instance;
-
+        public delegate void onPlayerAuthenticatedHandler();
+        public static event onPlayerAuthenticatedHandler onPlayerAuthenticated;
+        public delegate void onGetPlayerDataHandler(string item);
+        public static event onGetPlayerDataHandler onGetPlayerData;
         public event Action onInterstitialShown;
         public event Action<string> onInterstitialFailed;
         public event Action<int> onRewardedAdOpened;
         public static event Action<string> onRewardedAdReward;
         public static event Action<int> onRewardedAdClosed;
         public static event Action<int> onRewardedAdError;
-
         public Queue<int> rewardedAdPlacementsAsInt = new Queue<int>();
         public Queue<string> rewardedAdsPlacements = new Queue<string>();
-
-
-
         [SerializeField] private int secondTillNextInterstitial = 180;
-
+        [DllImport("__Internal")] private static extern void Authenticate();
+        [DllImport("__Internal")] private static extern void SetPlayerData(string data);
+        [DllImport("__Internal")] private static extern void GetPlayerData();
         [DllImport("__Internal")] private static extern void ShowFullscreenAd();
         [DllImport("__Internal")] private static extern void OpenRateUs();
         [DllImport("__Internal")] private static extern int ShowRewardedAd(string placement);
-
+        public Platform currentPlatform;
         private int currentSecondsTillNextInterstitial;
         private bool isInterstitialReady = false;
-
 
         public void Awake()
         {
@@ -49,9 +52,45 @@ namespace YandexSDK
             StartCoroutine(CountTillNextInterstitial());
         }
 
-        private void Start()
+        public void AuthenticateUser()
         {
-
+            Authenticate();
+        }
+        public void OnPlayerAuthenticated()
+        {
+            onPlayerAuthenticated?.Invoke();
+        }
+        public void SetSave<T>(T saveStateClass)
+        {
+            string dataStr = JsonUtility.ToJson(saveStateClass);
+            SetPlayerData(dataStr);
+        }
+        public void GetSave()
+        {
+            GetPlayerData();
+        }
+        public void OnGetPlayerData(string dataStr)
+        {
+            if (!dataStr.Contains("none"))
+            {
+                onGetPlayerData?.Invoke(string.Empty);
+            }
+            else
+            {
+                onGetPlayerData?.Invoke(dataStr);
+            }
+        }
+        public void OnGetPlayerPlatform(string p)
+        {
+            switch (p)
+            {
+                case "phone":
+                    currentPlatform = Platform.phone;
+                    break;
+                case "desktop":
+                    currentPlatform = Platform.desktop;
+                    break;
+            }
         }
         public void ShowInterstitial()
         {
@@ -59,11 +98,11 @@ namespace YandexSDK
             {
                 return;
             }
-            AudioListener.pause =true;
-
+            AudioListener.pause = true;
+            isInterstitialReady = false;
             Time.timeScale = 0;
             ShowFullscreenAd();
-            isInterstitialReady = false;
+
 
         }
 
