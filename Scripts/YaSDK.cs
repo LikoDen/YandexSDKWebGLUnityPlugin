@@ -73,11 +73,11 @@ namespace YandexSDK
         {
             if (!dataStr.Contains("none"))
             {
-                onGetPlayerData?.Invoke(string.Empty);
+                onGetPlayerData?.Invoke(dataStr);
             }
             else
             {
-                onGetPlayerData?.Invoke(dataStr);
+                onGetPlayerData?.Invoke(string.Empty);   
             }
         }
         public void OnGetPlayerPlatform(string p)
