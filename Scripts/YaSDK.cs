@@ -24,8 +24,8 @@ namespace YandexSDK
         public static event Action<string> onRewardedAdReward;
         public static event Action<int> onRewardedAdClosed;
         public static event Action<int> onRewardedAdError;
-        public Queue<int> rewardedAdPlacementsAsInt = new Queue<int>();
-        public Queue<string> rewardedAdsPlacements = new Queue<string>();
+        public int rewardedAdPlacementAsInt = 0;
+        public string rewardedAdPlacement = string.Empty;
         [SerializeField] private int secondTillNextInterstitial = 180;
         [DllImport("__Internal")] private static extern void Authenticate();
         [DllImport("__Internal")] private static extern void SetPlayerData(string data);
@@ -77,7 +77,7 @@ namespace YandexSDK
             }
             else
             {
-                onGetPlayerData?.Invoke(string.Empty);   
+                onGetPlayerData?.Invoke(string.Empty);
             }
         }
         public void OnGetPlayerPlatform(string p)
@@ -108,8 +108,8 @@ namespace YandexSDK
 
         public void ShowRewarded(string placement)
         {
-            rewardedAdPlacementsAsInt.Enqueue(ShowRewardedAd(placement));
-            rewardedAdsPlacements.Enqueue(placement);
+            rewardedAdPlacementAsInt = (ShowRewardedAd(placement));
+            rewardedAdPlacement = (placement);
             AudioListener.pause = true;
         }
 
@@ -146,11 +146,11 @@ namespace YandexSDK
 
         public void OnRewarded(int placement)
         {
-            if (placement == rewardedAdPlacementsAsInt.Dequeue())
+            if (placement == rewardedAdPlacementAsInt)
             {
                 if (onRewardedAdReward != null)
                 {
-                    onRewardedAdReward?.Invoke(rewardedAdsPlacements.Dequeue());
+                    onRewardedAdReward?.Invoke(rewardedAdPlacement);
                 }
             }
         }
@@ -174,8 +174,6 @@ namespace YandexSDK
             {
                 onRewardedAdError(placement);
             }
-            rewardedAdsPlacements.Clear();
-            rewardedAdPlacementsAsInt.Clear();
         }
         public void OpenRateUsWindow()
         {
