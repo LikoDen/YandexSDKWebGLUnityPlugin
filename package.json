@@ -1,6 +1,6 @@
 {
   "name": "com.mrpart.yandexsdkplugin",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "displayName": "YandexWebGLSDKPlugin",
   "description": "Yandex SDk plugin for WebGL",
   "unity": "2021.1",

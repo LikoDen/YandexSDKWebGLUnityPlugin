@@ -24,8 +24,11 @@ namespace YandexSDK
         public static event Action<string> onRewardedAdReward;
         public static event Action<int> onRewardedAdClosed;
         public static event Action<int> onRewardedAdError;
+        public bool isInterstitialReady = false;
+
         public int rewardedAdPlacementAsInt = 0;
         public string rewardedAdPlacement = string.Empty;
+
         [SerializeField] private int secondTillNextInterstitial = 180;
         [DllImport("__Internal")] private static extern void Authenticate();
         [DllImport("__Internal")] private static extern void SetPlayerData(string data);
@@ -33,9 +36,12 @@ namespace YandexSDK
         [DllImport("__Internal")] private static extern void ShowFullscreenAd();
         [DllImport("__Internal")] private static extern void OpenRateUs();
         [DllImport("__Internal")] private static extern int ShowRewardedAd(string placement);
+#if UNITY_EDITOR
+        private GameObject rewardedAdPrefab;
+        private GameObject interstitialAdPrefab;
+#endif
         public Platform currentPlatform;
         private int currentSecondsTillNextInterstitial;
-        private bool isInterstitialReady = false;
 
         public void Awake()
         {
@@ -101,14 +107,26 @@ namespace YandexSDK
             AudioListener.pause = true;
             isInterstitialReady = false;
             Time.timeScale = 0;
+#if UNITY_EDITOR
+            interstitialAdPrefab = (GameObject)AssetDatabase.LoadAssetAtPath("Packages/com.mrpart.yandexsdkplugin/Prefab/InterstitialAd.prefab", typeof(GameObject));
+            Instantiate(interstitialAdPrefab);
+#else
             ShowFullscreenAd();
+#endif
 
 
         }
 
         public void ShowRewarded(string placement)
         {
+#if UNITY_EDITOR
+            rewardedAdPrefab = (GameObject)AssetDatabase.LoadAssetAtPath("Packages/com.mrpart.yandexsdkplugin/Prefab/RewardedAd.prefab", typeof(GameObject));
+            RewardedAdEditor reawrded = Instantiate(rewardedAdPrefab).GetComponent<RewardedAdEditor>();
+
+            reawrded.placement = placement;
+#else
             rewardedAdPlacementAsInt = (ShowRewardedAd(placement));
+#endif
             rewardedAdPlacement = (placement);
             AudioListener.pause = true;
         }
@@ -143,7 +161,18 @@ namespace YandexSDK
                 onRewardedAdOpened(placement);
             }
         }
-
+#if UNITY_EDITOR
+        public void OnRewarded(string placement)
+        {
+            if (placement == rewardedAdPlacement)
+            {
+                if (onRewardedAdReward != null)
+                {
+                    onRewardedAdReward?.Invoke(rewardedAdPlacement);
+                }
+            }
+        }
+#endif
         public void OnRewarded(int placement)
         {
             if (placement == rewardedAdPlacementAsInt)
