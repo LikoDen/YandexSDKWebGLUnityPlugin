@@ -173,6 +173,7 @@
           if (value) {
             sdk.feedback.requestReview()
               .then(({ feedbackSent }) => {
+              window.focus();
                 console.log(feedbackSent);
               })
           } else {
