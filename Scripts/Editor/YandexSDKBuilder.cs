@@ -41,7 +41,7 @@ namespace YandexSDK
             if (!File.Exists($"{Application.dataPath}/YandexSettings.asset"))
             {
                 settings = ScriptableObject.CreateInstance<Settings>();
-                AssetDatabase.CreateAsset(settings, $"{Application.dataPath}/YandexSettings.asset");
+                AssetDatabase.CreateAsset(settings, "Assets/YandexSettings.asset");
                 settings.buildPath = path;
                 settings.projectName = gameTitle;
                 AssetDatabase.SaveAssets();
