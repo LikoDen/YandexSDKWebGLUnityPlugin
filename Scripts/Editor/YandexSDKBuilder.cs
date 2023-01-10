@@ -38,15 +38,7 @@ namespace YandexSDK
         private void OnGUI()
         {
             Settings settings = null;
-            if (!File.Exists($"{Application.dataPath}/YandexSettings.asset"))
-            {
-                settings = ScriptableObject.CreateInstance<Settings>();
-                AssetDatabase.CreateAsset(settings, "Assets/YandexSettings.asset");
-                settings.buildPath = path;
-                settings.projectName = gameTitle;
-                AssetDatabase.SaveAssets();
-            }
-            else
+            if(File.Exists($"{Application.dataPath}/YandexSettings.asset"))
             {
                 settings = (Settings)AssetDatabase.LoadAssetAtPath("Assets/YandexSettings.asset", typeof(Settings));
                 path = settings.buildPath;
@@ -96,10 +88,21 @@ namespace YandexSDK
                 {
                     scenes[i] = UnityEngine.SceneManagement.SceneUtility.GetScenePathByBuildIndex(i);
                 }
-                settings.buildPath = path;
-                settings.projectName = gameTitle;
-                EditorUtility.SetDirty(settings);
-                AssetDatabase.SaveAssets();
+                if (!File.Exists($"{Application.dataPath}/YandexSettings.asset"))
+                {
+                    settings = ScriptableObject.CreateInstance<Settings>();
+                    AssetDatabase.CreateAsset(settings, "Assets/YandexSettings.asset");
+                    settings.buildPath = path;
+                    settings.projectName = gameTitle;
+                    AssetDatabase.SaveAssets();
+                }
+                if(File.Exists($"{Application.dataPath}/YandexSettings.asset"))
+                {
+                    settings.buildPath = path;
+                    settings.projectName = gameTitle;
+                    EditorUtility.SetDirty(settings);
+                    AssetDatabase.SaveAssets();
+                }
                 BuildPipeline.BuildPlayer(scenes, buildPath, BuildTarget.WebGL, BuildOptions.None);
                 ZipFile.CreateFromDirectory(buildPath, buildPath + ".zip");
             }
