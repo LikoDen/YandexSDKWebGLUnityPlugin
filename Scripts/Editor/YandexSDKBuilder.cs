@@ -101,6 +101,7 @@ namespace YandexSDK
                 }
                 if (File.Exists($"{Application.dataPath}/YandexSettings.asset"))
                 {
+                    settings = (Settings)AssetDatabase.LoadAssetAtPath("Assets/YandexSettings.asset", typeof(Settings));
                     settings.buildPath = path;
                     settings.projectName = gameTitle;
                     EditorUtility.SetDirty(settings);
