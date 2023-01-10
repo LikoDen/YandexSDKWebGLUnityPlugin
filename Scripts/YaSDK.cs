@@ -13,6 +13,13 @@ namespace YandexSDK
     }
     public class YaSDK : MonoBehaviour
     {
+        [DllImport("__Internal")] private static extern void Authenticate();
+        [DllImport("__Internal")] private static extern void SetPlayerData(string data);
+        [DllImport("__Internal")] private static extern void GetPlayerData();
+        [DllImport("__Internal")] private static extern void ShowFullscreenAd();
+        [DllImport("__Internal")] private static extern void OpenRateUs();
+        [DllImport("__Internal")] private static extern int ShowRewardedAd(string placement);
+
         public static YaSDK instance;
         public delegate void onPlayerAuthenticatedHandler();
         public static event onPlayerAuthenticatedHandler onPlayerAuthenticated;
@@ -26,21 +33,18 @@ namespace YandexSDK
         public static event Action<int> onRewardedAdError;
         public bool isInterstitialReady = false;
 
+        public Platform currentPlatform;
+        
+        public bool canReview = false;
         public int rewardedAdPlacementAsInt = 0;
         public string rewardedAdPlacement = string.Empty;
 
         [SerializeField] private int secondTillNextInterstitial = 180;
-        [DllImport("__Internal")] private static extern void Authenticate();
-        [DllImport("__Internal")] private static extern void SetPlayerData(string data);
-        [DllImport("__Internal")] private static extern void GetPlayerData();
-        [DllImport("__Internal")] private static extern void ShowFullscreenAd();
-        [DllImport("__Internal")] private static extern void OpenRateUs();
-        [DllImport("__Internal")] private static extern int ShowRewardedAd(string placement);
 #if UNITY_EDITOR
         private GameObject rewardedAdPrefab;
         private GameObject interstitialAdPrefab;
 #endif
-        public Platform currentPlatform;
+
         private int currentSecondsTillNextInterstitial;
 
         public void Awake()
@@ -61,6 +65,9 @@ namespace YandexSDK
         public void AuthenticateUser()
         {
             Authenticate();
+        }
+        public void OnCanReview(string str){
+            canReview = (str == "yes")? true : false;
         }
         public void OnPlayerAuthenticated()
         {
@@ -207,6 +214,7 @@ namespace YandexSDK
         public void OpenRateUsWindow()
         {
             OpenRateUs();
+            canReview = false;
         }
         private IEnumerator<WaitForSeconds> CountTillNextInterstitial()
         {

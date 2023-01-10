@@ -129,14 +129,22 @@
       return sdk.getPlayer().then(_player => {
         player = _player;
         if (_player.getMode() === 'lite') {
-          // sdk.auth.openAuthDialog().then(() => {
-
-          // });
+          window.unityInstance.SendMessage('YandexSDK', 'OnCanReview', "no");
+          window.unityInstance.SendMessage('YandexSDK', 'OnPlayerAuthenticated');
         }
-        console.log("Initialized");
-        window.unityInstance.SendMessage('YandexSDK', 'OnPlayerAuthenticated');
+        else {
+          sdk.feedback.canReview()
+            .then(({ value, reason }) => {
+              if (value) {
+                window.unityInstance.SendMessage('YandexSDK', 'OnCanReview', "yes");
+                window.unityInstance.SendMessage('YandexSDK', 'OnPlayerAuthenticated');
+              } else {
+                window.unityInstance.SendMessage('YandexSDK', 'OnCanReview', "no");
+                window.unityInstance.SendMessage('YandexSDK', 'OnPlayerAuthenticated');
+              }
+            })
+        }
       }).catch(err => {
-        console.log("cant init");
       });
     }
     function setPlayerData(dataStr) {
