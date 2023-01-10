@@ -37,7 +37,21 @@ namespace YandexSDK
         [System.Obsolete]
         private void OnGUI()
         {
-
+            Settings settings = null;
+            if (!File.Exists($"{Application.dataPath}/YandexSettings.asset"))
+            {
+                settings = ScriptableObject.CreateInstance<Settings>();
+                AssetDatabase.CreateAsset(settings, $"{Application.dataPath}/YandexSettings.asset");
+                settings.buildPath = path;
+                settings.projectName = gameTitle;
+                AssetDatabase.SaveAssets();
+            }
+            else
+            {
+                settings = (Settings)AssetDatabase.LoadAssetAtPath("Assets/YandexSettings.asset", typeof(Settings));
+                path = settings.buildPath;
+                gameTitle = settings.projectName;
+            }
             GUILayout.Space(10);
 
             if (GUILayout.Button("Select Path", GUILayout.Width(100)))
@@ -64,21 +78,6 @@ namespace YandexSDK
 
             if (GUILayout.Button("Build", GUILayout.Width(100)))
             {
-                Settings settings = null;
-                if (!File.Exists($"{Application.dataPath}/YandexSettings.asset"))
-                {
-                    settings = ScriptableObject.CreateInstance<Settings>();
-                    AssetDatabase.CreateAsset(settings, $"{Application.dataPath}/YandexSettings.asset");
-                    settings.buildPath = path;
-                    settings.projectName = gameTitle;
-                    AssetDatabase.SaveAssets();
-                }
-                else
-                {
-                    settings = (Settings)AssetDatabase.LoadAssetAtPath("Assets/YandexSettings.asset", typeof(Settings));
-                    path = settings.buildPath;
-                    gameTitle = settings.projectName;
-                }
                 string destinationFolder = Path.GetFullPath("Assets/WebGLTemplates/");
                 string sourceFolder = Path.GetFullPath("Packages/com.mrpart.yandexsdkplugin/WebGLTemplates/");
                 FileUtil.ReplaceDirectory(sourceFolder, destinationFolder);
