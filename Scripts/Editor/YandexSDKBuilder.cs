@@ -64,11 +64,26 @@ namespace YandexSDK
 
             if (GUILayout.Button("Build", GUILayout.Width(100)))
             {
-            string destinationFolder = Path.GetFullPath("Assets/WebGLTemplates/");
-            string sourceFolder = Path.GetFullPath("Packages/com.mrpart.yandexsdkplugin/WebGLTemplates/");
-            FileUtil.ReplaceDirectory(sourceFolder,destinationFolder);
-            AssetDatabase.Refresh();
-            PlayerSettings.WebGL.template = "PROJECT:Yandex";
+                Settings settings = null;
+                if (!File.Exists($"{Application.dataPath}/YandexSettings.asset"))
+                {
+                    settings = ScriptableObject.CreateInstance<Settings>();
+                    AssetDatabase.CreateAsset(settings, $"{Application.dataPath}/YandexSettings.asset");
+                    settings.buildPath = path;
+                    settings.projectName = gameTitle;
+                    AssetDatabase.SaveAssets();
+                }
+                else
+                {
+                    settings = (Settings)AssetDatabase.LoadAssetAtPath("Assets/YandexSettings.asset", typeof(Settings));
+                    path = settings.buildPath;
+                    gameTitle = settings.projectName;
+                }
+                string destinationFolder = Path.GetFullPath("Assets/WebGLTemplates/");
+                string sourceFolder = Path.GetFullPath("Packages/com.mrpart.yandexsdkplugin/WebGLTemplates/");
+                FileUtil.ReplaceDirectory(sourceFolder, destinationFolder);
+                AssetDatabase.Refresh();
+                PlayerSettings.WebGL.template = "PROJECT:Yandex";
                 if (path == null || gameTitle == null)
                 {
                     Debug.LogError("Path or Title is null");
@@ -82,9 +97,10 @@ namespace YandexSDK
                 {
                     scenes[i] = UnityEngine.SceneManagement.SceneUtility.GetScenePathByBuildIndex(i);
                 }
-
-
-
+                settings.buildPath = path;
+                settings.projectName = gameTitle;
+                EditorUtility.SetDirty(settings);
+                AssetDatabase.SaveAssets();
                 BuildPipeline.BuildPlayer(scenes, buildPath, BuildTarget.WebGL, BuildOptions.None);
                 ZipFile.CreateFromDirectory(buildPath, buildPath + ".zip");
             }
