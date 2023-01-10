@@ -38,11 +38,14 @@ namespace YandexSDK
         private void OnGUI()
         {
             Settings settings = null;
-            if(File.Exists($"{Application.dataPath}/YandexSettings.asset"))
+            if (File.Exists($"{Application.dataPath}/YandexSettings.asset"))
             {
-                settings = (Settings)AssetDatabase.LoadAssetAtPath("Assets/YandexSettings.asset", typeof(Settings));
-                path = settings.buildPath;
-                gameTitle = settings.projectName;
+                if (gameTitle == null && path == null)
+                {
+                    settings = (Settings)AssetDatabase.LoadAssetAtPath("Assets/YandexSettings.asset", typeof(Settings));
+                    path = settings.buildPath;
+                    gameTitle = settings.projectName;
+                }
             }
             GUILayout.Space(10);
 
@@ -96,7 +99,7 @@ namespace YandexSDK
                     settings.projectName = gameTitle;
                     AssetDatabase.SaveAssets();
                 }
-                if(File.Exists($"{Application.dataPath}/YandexSettings.asset"))
+                if (File.Exists($"{Application.dataPath}/YandexSettings.asset"))
                 {
                     settings.buildPath = path;
                     settings.projectName = gameTitle;
