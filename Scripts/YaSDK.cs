@@ -45,7 +45,7 @@ namespace YandexSDK
         private GameObject interstitialAdPrefab;
 #endif
 
-        private int currentSecondsTillNextInterstitial;
+        private float currentSecondsTillNextInterstitial;
 
         public void Awake()
         {
