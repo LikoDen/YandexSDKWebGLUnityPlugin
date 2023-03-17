@@ -140,13 +140,13 @@ namespace YandexSDK
 
         public void OnInterstitialShown()
         {
+            AudioListener.pause = false;
+            Time.timeScale = 1;
+            StartCoroutine(CountTillNextInterstitial());
             if (onInterstitialShown != null)
             {
                 onInterstitialShown();
             }
-            AudioListener.pause = false;
-            Time.timeScale = 1;
-            StartCoroutine(CountTillNextInterstitial());
         }
 
         public void OnInterstitialError(string error)
