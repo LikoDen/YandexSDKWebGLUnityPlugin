@@ -220,13 +220,11 @@ namespace YandexSDK
         {
             while (currentSecondsTillNextInterstitial > 0)
             {
-
-                yield return new WaitForSeconds(1);
-                currentSecondsTillNextInterstitial--;
+                currentSecondsTillNextInterstitial -=  Time.unscaledDeltaTime;
+                yield return null;
             }
             isInterstitialReady = true;
             currentSecondsTillNextInterstitial = secondTillNextInterstitial;
         }
-
     }
 }
