@@ -37,6 +37,29 @@ public static class YandexPlayerPrefs
             return defVal;
         }
     }
+    public static float GetFloat(string key, float defVal = 0.0f)
+    {
+        if (YandexPlayerPrefsManager.current.currentSave.floatPrefs.ContainsKey(key))
+        {
+            return YandexPlayerPrefsManager.current.currentSave.floatPrefs.FirstOrDefault(x => x.Key == key).Value;
+        }
+        else
+        {
+            return defVal;
+        }
+    }
+    public static void SetFloat(string key, float val)
+    {
+        if (!YandexPlayerPrefsManager.current.currentSave.floatPrefs.ContainsKey(key))
+        {
+            YandexPlayerPrefsManager.current.currentSave.floatPrefs.Add(key, val);
+        }
+        else
+        {
+            YandexPlayerPrefsManager.current.currentSave.floatPrefs[key] = val;
+        }
+        YandexPlayerPrefsManager.current.SetSave();
+    }
     public static void SetString(string key, string val)
     {
         if (!YandexPlayerPrefsManager.current.currentSave.stringPrefs.ContainsKey(key))
@@ -83,15 +106,34 @@ public static class YandexPlayerPrefs
             return defVal;
         }
     }
-    public static bool HasKey(string key)
+     public static bool HasKey(string key)
     {
-        if (YandexPlayerPrefsManager.current.currentSave.boolPrefs.ContainsKey(key) || YandexPlayerPrefsManager.current.currentSave.intPrefs.ContainsKey(key) || YandexPlayerPrefsManager.current.currentSave.stringPrefs.ContainsKey(key))
+        if (YandexPlayerPrefsManager.current.currentSave.boolPrefs.ContainsKey(key) || YandexPlayerPrefsManager.current.currentSave.floatPrefs.ContainsKey(key) || YandexPlayerPrefsManager.current.currentSave.intPrefs.ContainsKey(key) || YandexPlayerPrefsManager.current.currentSave.stringPrefs.ContainsKey(key))
         {
             return true;
         }
         else
         {
             return false;
+        }
+    }
+    public static void DeleteKey(string key)
+    {
+        if (YandexPlayerPrefsManager.current.currentSave.floatPrefs.ContainsKey(key))
+        {
+            YandexPlayerPrefsManager.current.currentSave.floatPrefs.Remove(key);
+        }
+        if (YandexPlayerPrefsManager.current.currentSave.intPrefs.ContainsKey(key))
+        {
+            YandexPlayerPrefsManager.current.currentSave.intPrefs.Remove(key);
+        }
+        if (YandexPlayerPrefsManager.current.currentSave.stringPrefs.ContainsKey(key))
+        {
+            YandexPlayerPrefsManager.current.currentSave.stringPrefs.Remove(key);
+        }
+        if (YandexPlayerPrefsManager.current.currentSave.boolPrefs.ContainsKey(key))
+        {
+            YandexPlayerPrefsManager.current.currentSave.boolPrefs.Remove(key);
         }
     }
 }
@@ -162,11 +204,14 @@ public class YandexPlayerPrefsManager : MonoBehaviour
     public class Save
     {
         public StringIntDictionary intPrefs = new StringIntDictionary();
+        public StringFloatDictionary floatPrefs = new StringFloatDictionary();
         public StringStringDictionary stringPrefs = new StringStringDictionary();
         public StringBoolDictionary boolPrefs = new StringBoolDictionary();
     }
     [System.Serializable]
     public class StringIntDictionary : SerializableDictionary<string, int> { }
+    [System.Serializable]
+    public class StringFloatDictionary : SerializableDictionary<string, float> { }
     [System.Serializable]
     public class StringStringDictionary : SerializableDictionary<string, string> { }
     [System.Serializable]
